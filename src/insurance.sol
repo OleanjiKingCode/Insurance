@@ -38,7 +38,8 @@ contract HealthInsuranceSystem {
         string email;
         string location;
         address hospitalAddress;
-        uint256[] insurancePartners;
+        uint256[] listOfEndorsedInsurers;
+        bool insurersVerified;
     }
 
     struct Insurer {
@@ -48,7 +49,9 @@ contract HealthInsuranceSystem {
         string contactNumber;
         string email;
         address insurerAddress;
+        uint256[] listOfPartneredHospitals;
     }
+    // add a listOfPartneredHospitals
 
     struct Policy {
         uint256 id;
@@ -60,6 +63,12 @@ contract HealthInsuranceSystem {
         bool policyStatus;
     }
 
+    // add a new array that contains list of possible treatments a policy can take care of; e.g dental, Physiotherapy,
+    // Treatment for specific diseases like cancer
+    // add a limit for the type of treament a policy can cover
+
+    // do a check for the coverageDetails when users/ patient wants to claim i.e to know if its valid
+
     struct Appointment {
         uint256 id;
         uint256 patientId;
@@ -67,8 +76,10 @@ contract HealthInsuranceSystem {
         uint256 appointmentDate;
         string reasonForVisit;
         bool status;
-        uint256 verificationId;
-        uint256 treatmentID;
+        uint256 verificationId; //
+        uint256 treatmentID; // details of health record of a pat
+            // add a treatmentCoverage category that the appointment fall in
+            //rename treatmentCoverage
     }
 
     struct Document {
@@ -115,7 +126,7 @@ contract HealthInsuranceSystem {
     struct Treatment {
         uint256 id;
         uint256 appointmentId;
-        string treatmentDetails;
+        string treatmentDetails; // update this
         string name;
     }
 
@@ -232,6 +243,18 @@ contract HealthInsuranceSystem {
         return false;
     }
 
+    // /// @notice Checks if a insurer/endorsers of hospitals are valid
+    // /// @param _listOfPartneredHospitals The list of endorsers to validate
+    // /// @return True if the insurers/endorsers fit the criteria, false otherwise
+    // function hospitalExists(uint256[] memory _listOfPartneredHospitals) internal view returns (bool) {
+    //     for (uint256 i = 1; i <= hospitalCounter; i++) {
+    //         if (hospitals[i].hospitalAddress == _hospitalAddress) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
     /// @notice Checks if an insurer already exists
     /// @param _insurerAddress The address of the insurer to check
     /// @return True if the insurer exists, false otherwise
@@ -294,7 +317,7 @@ contract HealthInsuranceSystem {
     /// @param _email The email address of the hospital
     /// @param _location The location of the hospital
     /// @param _hospitalAddress The address of the hospital
-    /// @param _insurancePartners The list of insurance partners' IDs
+    /// @param _listOfPartneredHospitals The list of insurance partners' IDs
     /// @return The ID of the newly registered hospital
     function registerHospital(
         UserType _userType,
@@ -303,7 +326,7 @@ contract HealthInsuranceSystem {
         string memory _email,
         string memory _location,
         address _hospitalAddress,
-        uint256[] memory _insurancePartners
+        uint256[] memory _listOfPartneredHospitals
     )
         public
         returns (uint256)
@@ -313,6 +336,7 @@ contract HealthInsuranceSystem {
 
         uint256 _stakeholderId = registerStakeholder(_userType);
         hospitalCounter++;
+
         hospitals[hospitalCounter] = Hospital(
             hospitalCounter,
             _stakeholderId,
@@ -321,7 +345,8 @@ contract HealthInsuranceSystem {
             _email,
             _location,
             _hospitalAddress,
-            _insurancePartners
+            _listOfPartneredHospitals,
+            false
         );
         emit HospitalRegistered(hospitalCounter, _stakeholderId);
         return hospitalCounter;
